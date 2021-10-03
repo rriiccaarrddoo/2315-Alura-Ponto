@@ -66,6 +66,7 @@ class HomeViewController: UIViewController {
     
     func tentaAbrirCamera() {
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            camera.delegate = self
             camera.abrirCamera(self, controladorDeImagem)
         }
     }
@@ -74,5 +75,12 @@ class HomeViewController: UIViewController {
     
     @IBAction func registrarButton(_ sender: UIButton) {
         tentaAbrirCamera()
+    }
+}
+
+extension HomeViewController: CameraDelegate {
+    func didSelectFoto(_ image: UIImage) {
+        let recibo = Recibo(status: false, data: Date(), foto: image)
+        Secao.shared.addRecibos(recibo)
     }
 }

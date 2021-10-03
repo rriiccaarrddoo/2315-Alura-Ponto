@@ -149,10 +149,10 @@
 		030EF1D426FD1DE7000D3E42 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				03FDE299270A3F06004053A7 /* Camera.swift */,
 				034DC6F9270A26BF00156335 /* Secao.swift */,
 				03E880B12704FC4400033A34 /* Recibo.swift */,
 				03431DCB270290D200EB8D91 /* FormatadorDeData.swift */,
-				03FDE299270A3F06004053A7 /* Camera.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
