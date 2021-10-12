@@ -31,9 +31,21 @@ extension Recibo {
     
     // MARK: - Core Data - DAO
     
+    class func fetchRequest() -> NSFetchRequest<Recibo> {
+        return NSFetchRequest(entityName: "Recibo")
+    }
+    
     func save(_ contexto: NSManagedObjectContext) {
         do {
             try contexto.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    class func carregar(_ fetchedResultController: NSFetchedResultsController<Recibo>) {
+        do {
+            try fetchedResultController.performFetch()
         } catch {
             print(error.localizedDescription)
         }
