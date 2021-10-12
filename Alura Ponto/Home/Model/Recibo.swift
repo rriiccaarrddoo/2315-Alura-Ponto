@@ -35,7 +35,7 @@ extension Recibo {
         return NSFetchRequest(entityName: "Recibo")
     }
     
-    func save(_ contexto: NSManagedObjectContext) {
+    func salvar(_ contexto: NSManagedObjectContext) {
         do {
             try contexto.save()
         } catch {

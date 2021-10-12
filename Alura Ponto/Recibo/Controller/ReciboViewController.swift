@@ -90,7 +90,7 @@ class ReciboViewController: UIViewController {
 
 extension ReciboViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Secao.shared.listaDeRecibos.count
+        return buscador.fetchedObjects?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -98,7 +98,7 @@ extension ReciboViewController: UITableViewDataSource {
             fatalError("erro ao criar ReciboTableViewCell")
         }
         
-        let recibo = Secao.shared.listaDeRecibos[indexPath.row]
+        let recibo = buscador.fetchedObjects?[indexPath.row]
         cell.configuraCelula(recibo)
         cell.delegate = self
         cell.deletarButton.tag = indexPath.row
@@ -115,7 +115,7 @@ extension ReciboViewController: UITableViewDelegate {
 
 extension ReciboViewController: ReciboTableViewCellDelegate {
     func deletarRecibo(_ index: Int) {
-        Secao.shared.listaDeRecibos.remove(at: index)
+        
         reciboTableView.reloadData()
     }
 }
