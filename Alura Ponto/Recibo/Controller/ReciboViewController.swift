@@ -22,6 +22,12 @@ class ReciboViewController: UIViewController {
     private lazy var camera = Camera()
     private lazy var controladorDeImage = UIImagePickerController()
     
+    var contexto: NSManagedObjectContext = {
+        let contexto = UIApplication.shared.delegate as! AppDelegate
+        
+        return contexto.persistentContainer.viewContext
+    }()
+    
     let buscador: NSFetchedResultsController<Recibo> = {
         let fetchRequest: NSFetchRequest<Recibo> = Recibo.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "data", ascending: false)
@@ -41,6 +47,15 @@ class ReciboViewController: UIViewController {
         configuraTableView()
         configuraViewFoto()
         buscador.delegate = self
+
+
+    }
+    
+    func getSavedImage(named: String) -> UIImage? {
+        if let dir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) {
+            return UIImage(contentsOfFile: URL(fileURLWithPath: dir.absoluteString).appendingPathComponent(named).path)
+        }
+        return nil
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -55,10 +70,19 @@ class ReciboViewController: UIViewController {
     }
     
     func configuraViewFoto() {
+        
         escolhaFotoView.layer.borderWidth = 1
         escolhaFotoView.layer.borderColor = UIColor.systemGray2.cgColor
         escolhaFotoView.layer.cornerRadius = escolhaFotoView.frame.width/2
         escolhaFotoButton.setTitle("", for: .normal)
+    
+        fotoPerfilImageView.image = getSavedImage(named: "fotoAluraPerfil.png")
+        
+        if fotoPerfilImageView.image != nil{
+            escolhaFotoButton.isHidden = true
+        }
+  
+
     }
     
     func configuraTableView() {
@@ -80,6 +104,7 @@ class ReciboViewController: UIViewController {
         
         present(menu, animated: true, completion: nil)
     }
+    
     
     // MARK: - IBActions
     
@@ -115,8 +140,8 @@ extension ReciboViewController: UITableViewDelegate {
 
 extension ReciboViewController: ReciboTableViewCellDelegate {
     func deletarRecibo(_ index: Int) {
-        
-        reciboTableView.reloadData()
+        guard let recibo = buscador.fetchedObjects?[index] else { return }
+        recibo.deletar(contexto)
     }
 }
 
@@ -124,9 +149,38 @@ extension ReciboViewController: CameraDelegate {
     func didSelectFoto(_ image: UIImage) {
         escolhaFotoButton.isHidden = true
         fotoPerfilImageView.image = image
+        _ = saveImage(image: image)
+    }
+    
+    func saveImage(image: UIImage) -> Bool {
+        guard let data = image.jpegData(compressionQuality: 1) ?? image.pngData() else {
+            return false
+        }
+        guard let directory = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) as NSURL else {
+            return false
+        }
+        do {
+            try data.write(to: directory.appendingPathComponent("fotoAluraPerfil.png")!)
+            return true
+        } catch {
+            print(error.localizedDescription)
+            return false
+        }
     }
 }
 
 extension ReciboViewController: NSFetchedResultsControllerDelegate {
     
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .delete:
+            if let indexPath = indexPath {
+                reciboTableView.deleteRows(at: [indexPath], with: .fade)
+            }
+            break
+        default:
+            reciboTableView.reloadData()
+        }
+    }
 }
+
